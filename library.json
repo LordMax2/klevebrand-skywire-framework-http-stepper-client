@@ -1,0 +1,26 @@
+{
+  "name": "klevebrand-skywire-framework-http-stepper-client",
+  "version": "1.0.0",
+  "description": "A http client that runs \"non blocking\" for the Skywire/Airgain modems by Klevebrand.",
+  "keywords": "skywire, airgain, klevebrand, framework, modem, 4g, lte",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/LordMax2/klevebrand-skywire-framework.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Max Klevebrand",
+      "email": "max.klevebrand@gmail.com",
+      "url": "https://klevebrand.se"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://klevebrand.se",
+  "dependencies": { 
+    "klevebrand/klevebrand-skywire-framework": "1.0.0"
+  },
+  "frameworks": "*",
+  "platforms": "Arduino"
+}
