@@ -47,7 +47,7 @@ SkywireResponseResult_t SkywireHttpStepperClient::get(String path)
 
 	serialReadToRxBuffer();
 
-	if (rx_buffer.indexOf("\r") < 0)
+	if (rx_buffer.indexOf("\r\n") == -1 || skywire.available() || rx_buffer.indexOf("OK") == -1)
 	{
 		return SkywireResponseResult_t(false, "");
 	}
@@ -55,6 +55,8 @@ SkywireResponseResult_t SkywireHttpStepperClient::get(String path)
 	String result = rx_buffer;
 
 	resetState();
+
+	skywire.print("AT#SH=1\r");
 
 	return SkywireResponseResult_t(true, result);
 }
@@ -74,13 +76,15 @@ bool SkywireHttpStepperClient::httpCfg()
 
 	if (http_cfg_sent && !http_cfg_ok_recieved)
 	{
-		http_cfg_ok_recieved = rx_buffer.indexOf("OK") >= 0;
+		http_cfg_ok_recieved = rx_buffer.indexOf("OK") != -1 && rx_buffer.indexOf("\r\n") != -1 && !skywire.available();
 
 		if (http_cfg_ok_recieved)
 		{
 			if(DEBUG) {
 				Serial.println("STEPPER CLIENT RECEIVED HTTPCFG OK");
 			}
+
+			rx_buffer = "";
 
 			return true;
 		}
@@ -108,13 +112,15 @@ bool SkywireHttpStepperClient::httpQry(String path)
 
 	if (!http_qry_ok_recieved)
 	{
-		http_qry_ok_recieved = rx_buffer.indexOf("OK\r") >= 0;
+		http_qry_ok_recieved = rx_buffer.indexOf("OK") != -1 && rx_buffer.indexOf("\r\n") != -1 && !skywire.available();
 
 		if (http_qry_ok_recieved)
 		{
 			if(DEBUG) {
 				Serial.println("STEPPER CLIENT RECEIVED HTTPQRY OK");
 			}
+
+			rx_buffer = "";
 
 			return true;
 		}
@@ -132,7 +138,7 @@ bool SkywireHttpStepperClient::httpRing()
 	if (!http_ring_recieved)
 	{
 		
-		http_ring_recieved = rx_buffer.indexOf("HTTPRING") > 0;
+		http_ring_recieved = rx_buffer.indexOf("HTTPRING") != -1 && rx_buffer.indexOf("\r\n") != -1 && !skywire.available();
 
 		if (http_ring_recieved)
 		{
@@ -140,6 +146,8 @@ bool SkywireHttpStepperClient::httpRing()
 				Serial.println(rx_buffer);
 				Serial.println("STEPPER CLIENT RECEIVED HTTPRING OK");
 			}
+
+			rx_buffer = "";
 
 			return true;
 		}
@@ -164,9 +172,9 @@ bool SkywireHttpStepperClient::httpRcv()
 
 void SkywireHttpStepperClient::serialReadToRxBuffer()
 {
-	if (Serial3.available())
+	if (skywire.available())
 	{
-		char c = Serial3.read();
+		char c = skywire.read();
 		rx_buffer += c;
 	}
 }
