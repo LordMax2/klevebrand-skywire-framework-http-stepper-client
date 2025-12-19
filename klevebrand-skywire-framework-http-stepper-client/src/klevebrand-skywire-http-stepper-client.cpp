@@ -25,33 +25,38 @@ bool SkywireHttpStepperClient::start()
 
 SkywireResponseResult_t SkywireHttpStepperClient::get(String path)
 {
-	if(!httpCfg()) {
-		return SkywireResponseResult_t(false, "");
-	} 
-
-	if(!httpQry(path)) {
+	if (!httpCfg())
+	{
 		return SkywireResponseResult_t(false, "");
 	}
 
-	if(!httpRing()) {
-		return SkywireResponseResult_t(false ,"");
-
-	}
-
-	if(!httpRcv()) {
+	if (!httpQry(path))
+	{
 		return SkywireResponseResult_t(false, "");
 	}
 
+	if (!httpRing())
+	{
+		return SkywireResponseResult_t(false, "");
+	}
+
+	if (!httpRcv())
+	{
+		return SkywireResponseResult_t(false, "");
+	}
 
 	serialReadToRxBuffer();
 
-	if(DEBUG) {
-		Serial.println(rx_buffer);
+	if (rx_buffer.indexOf("\r") < 0)
+	{
+		return SkywireResponseResult_t(false, "");
 	}
+
+	String result = rx_buffer;
 
 	resetState();
 
-	return SkywireResponseResult_t(true, rx_buffer);
+	return SkywireResponseResult_t(true, result);
 }
 
 bool SkywireHttpStepperClient::httpCfg()
@@ -159,7 +164,7 @@ bool SkywireHttpStepperClient::httpRcv()
 
 void SkywireHttpStepperClient::serialReadToRxBuffer()
 {
-	while (Serial3.available())
+	if (Serial3.available())
 	{
 		char c = Serial3.read();
 		rx_buffer += c;
