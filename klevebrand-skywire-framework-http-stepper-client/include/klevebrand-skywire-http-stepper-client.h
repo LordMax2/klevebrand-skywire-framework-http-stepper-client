@@ -7,10 +7,11 @@
 class SkywireHttpStepperClient
 {
 public:
-	SkywireHttpStepperClient(HardwareSerial& skywire_serial, String base_url, int port) : skywire(skywire_serial)
+	SkywireHttpStepperClient(HardwareSerial& skywire_serial, String base_url, int port, bool debug_mode = false) : _skywire(skywire_serial, debug_mode)
 	{
-		this->base_url = base_url;
-		this->port = port;
+		this->_base_url = base_url;
+		this->_port = port;
+		this->_debug_mode = debug_mode;
 
 		resetState();
 	}
@@ -18,30 +19,32 @@ public:
 	SkywireResponseResult_t get(String path);
 
 private:
-	Skywire skywire;
-	String base_url;
-	int port;
+	Skywire _skywire;
+	String _base_url;
+	int _port;
+
+	bool _debug_mode = false;
 
 	bool httpCfg();
-	bool http_cfg_sent = false;
-	bool http_cfg_ok_recieved = false;
+	bool _http_cfg_sent = false;
+	bool _http_cfg_ok_recieved = false;
 
 	bool httpQry(String path);
-	bool http_qry_sent = false;
-	bool http_qry_ok_recieved = false;
+	bool _http_qry_sent = false;
+	bool _http_qry_ok_recieved = false;
 
 	bool httpRcv();
-	bool http_rcv_sent = false;
-	bool http_rcv_ok_recieved = false;
+	bool _http_rcv_sent = false;
+	bool _http_rcv_ok_recieved = false;
 
 	bool httpRing();
-	bool http_ring_recieved = false;
+	bool _http_ring_recieved = false;
 
 	void resetState();
 	void serialReadToRxBuffer();
 
 	void resetRxBuffer();
-	String rx_buffer;
+	String _rx_buffer;
 };
 
 #endif // KLEVEBRAND_SKYWIRE_HTTP_STEPPER_CLIENT_H
